@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew install:*)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --no-import-alias --use-npm)",
+      "Bash(npm install:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s http://localhost:3000/api/account -X POST)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -c /tmp/emergid_cookies http://localhost:3000/api/auth -X POST -H \"Content-Type: application/json\" -d '{\"accountNumber\":\"6311-9487-2978\"}')",
+      "Bash(curl -s -b /tmp/emergid_cookies http://localhost:3000/api/profile -X PUT -H \"Content-Type: application/json\" -d '{\"dateOfBirth\":\"1985-03-15\",\"bloodType\":\"O+\",\"allergies\":[\"Penicillin\",\"Sulfa\"],\"medications\":[\"Metformin 500mg twice daily\",\"Lisinopril 10mg\"],\"conditions\":[\"Type 2 Diabetes\",\"Hypertension\"],\"physicianName\":\"Dr. Sarah Chen\",\"physicianPhone\":\"555-0123\",\"emergencyContactRelation\":\"Spouse\",\"emergencyContactPhone\":\"555-0456\",\"dnr\":false}')",
+      "Bash(curl -s http://localhost:3000/api/card/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(curl -s -w \"\\\\nHTTP_CODE: %{http_code}\\\\n\" http://localhost:3000/api/card/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(curl -v http://localhost:3000/api/card/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(curl -m 5 -s http://localhost:3000/api/card/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(curl -m 5 -s -c /tmp/emergid_cookies2 http://localhost:3000/api/auth -X POST -H \"Content-Type: application/json\" -d '{\"accountNumber\":\"6311-9487-2978\"}')",
+      "Bash(curl -m 5 -s http://localhost:3000/e/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(curl -m 10 -s -o /dev/null -w \"HTTP %{http_code}\" http://localhost:3000/e/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(curl -m 10 -s -o /tmp/emergid-card.html -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/e/829HWIczrHl-Hcu8_fPNNA)",
+      "Read(//tmp/**)",
+      "Bash(curl -m 5 -s -b /tmp/emergid_cookies2 http://localhost:3000/api/access-log)",
+      "Bash(curl -m 5 -s -b /tmp/emergid_cookies2 http://localhost:3000/api/token/reroll -X POST)",
+      "Bash(curl -m 5 -s -o /dev/null -w \"HTTP %{http_code}\" http://localhost:3000/api/card/829HWIczrHl-Hcu8_fPNNA)",
+      "Bash(curl -m 5 -s http://localhost:3000/)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
