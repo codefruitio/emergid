@@ -58,8 +58,8 @@ emergID is designed so that **even the person hosting the server cannot read use
 ### Option 1: Docker Compose
 
 ```bash
-git clone https://github.com/codefruitio/emergid.git
-cd emergid
+# Download the compose file
+curl -O https://raw.githubusercontent.com/codefruitio/emergid/main/docker-compose.yml
 
 # Create .env file
 echo "SESSION_SECRET=$(openssl rand -hex 32)" > .env
@@ -69,16 +69,16 @@ echo "NEXT_PUBLIC_BASE_URL=https://your-domain.com" >> .env
 docker compose up -d
 ```
 
-The app will be available at `http://localhost:3000`. Put it behind a reverse proxy (nginx, Caddy, Traefik) with HTTPS for production use -- **token URLs must be served over HTTPS**.
+The app will be available at `http://localhost:9494`. Put it behind a reverse proxy (nginx, Caddy, Traefik) with HTTPS for production use -- **token URLs must be served over HTTPS**.
 
 To update:
 
 ```bash
-git pull
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 ```
 
-Data is stored in a Docker volume (`emergid-data`) and persists across rebuilds.
+Data is stored in a Docker volume (`emergid-data`) and persists across updates. The image is automatically published to [Docker Hub](https://hub.docker.com/r/codefruitio/emergid) on every push to main.
 
 ### Option 2: Railway
 
