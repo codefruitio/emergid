@@ -98,6 +98,18 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+          <p className="text-center text-gray-500 text-sm mt-8">
+            emergID is open source and fully self-hostable. Don&apos;t trust
+            a third party with your medical data — run your own instance.{" "}
+            <a
+              href="https://github.com/codefruitio/emergid"
+              className="text-red-600 hover:text-red-700 font-medium"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View on GitHub
+            </a>
+          </p>
         </div>
       </div>
 
