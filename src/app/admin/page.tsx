@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
       <div className="max-w-sm w-full">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">emergID</h1>
-          <p className="text-gray-500 mt-1">Admin Portal</p>
+          <p className="text-gray-500 mt-1">Account Portal</p>
         </div>
 
         <form
@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
               type="text"
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="0000-0000-0000"
+              placeholder="0000000000000000"
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-center font-mono text-lg text-gray-900"
               autoFocus
             />

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ecfc70c9-edd4-4fe5-892a-7374234f4464",
+  "id": "24ee0365-8f35-4b6a-84a0-d5564f311796",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "access_log": {
@@ -146,20 +146,6 @@
         },
         "emergency_contact_phone": {
           "name": "emergency_contact_phone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dnr": {
-          "name": "dnr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dnr_notes": {
-          "name": "dnr_notes",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

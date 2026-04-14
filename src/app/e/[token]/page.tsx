@@ -31,8 +31,6 @@ export default async function EmergencyCardPage({
       physicianPhone: accounts.physicianPhone,
       emergencyContactRelation: accounts.emergencyContactRelation,
       emergencyContactPhone: accounts.emergencyContactPhone,
-      dnr: accounts.dnr,
-      dnrNotes: accounts.dnrNotes,
       lastUpdated: accounts.lastUpdated,
       ttlDeadline: accounts.ttlDeadline,
     })
@@ -64,8 +62,6 @@ export default async function EmergencyCardPage({
       physicianPhone: account.physicianPhone,
       emergencyContactRelation: account.emergencyContactRelation,
       emergencyContactPhone: account.emergencyContactPhone,
-      dnr: account.dnr,
-      dnrNotes: account.dnrNotes,
     },
     dek
   );

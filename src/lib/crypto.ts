@@ -8,12 +8,12 @@ import {
   pbkdf2Sync,
 } from "crypto";
 
-/** Generate a random account number in XXXX-XXXX-XXXX format */
+/** Generate a random 16-digit account number */
 export function generateAccountNumber(): string {
-  const bytes = randomBytes(6); // 48 bits of entropy
-  const num = bytes.readUIntBE(0, 6);
-  const digits = num.toString().padStart(12, "0").slice(0, 12);
-  return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+  // Generate two 8-byte random numbers to get 16 digits
+  const high = randomBytes(4).readUInt32BE(0) % 100000000;
+  const low = randomBytes(4).readUInt32BE(0) % 100000000;
+  return `${high.toString().padStart(8, "0")}${low.toString().padStart(8, "0")}`;
 }
 
 /** Generate a 128-bit cryptographically random token as base64url */

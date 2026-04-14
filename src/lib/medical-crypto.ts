@@ -10,8 +10,6 @@ export interface MedicalProfile {
   physicianPhone: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  dnr: boolean;
-  dnrNotes: string | null;
 }
 
 /** Encrypt a single field — returns null if value is null/empty */
@@ -40,8 +38,6 @@ export function encryptProfile(
     physicianPhone: encryptField(profile.physicianPhone, dek),
     emergencyContactRelation: encryptField(profile.emergencyContactRelation, dek),
     emergencyContactPhone: encryptField(profile.emergencyContactPhone, dek),
-    dnr: encryptField(String(profile.dnr), dek),
-    dnrNotes: encryptField(profile.dnrNotes, dek),
   };
 }
 
@@ -59,7 +55,5 @@ export function decryptProfile(
     physicianPhone: decryptField(encrypted.physicianPhone, dek),
     emergencyContactRelation: decryptField(encrypted.emergencyContactRelation, dek),
     emergencyContactPhone: decryptField(encrypted.emergencyContactPhone, dek),
-    dnr: decryptField(encrypted.dnr, dek) === "true",
-    dnrNotes: decryptField(encrypted.dnrNotes, dek),
   };
 }

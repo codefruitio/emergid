@@ -11,8 +11,6 @@ export interface ProfileData {
   physicianPhone: string;
   emergencyContactRelation: string;
   emergencyContactPhone: string;
-  dnr: boolean;
-  dnrNotes: string;
 }
 
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -107,8 +105,6 @@ export default function ProfileForm({
     physicianPhone: initialData?.physicianPhone || "",
     emergencyContactRelation: initialData?.emergencyContactRelation || "",
     emergencyContactPhone: initialData?.emergencyContactPhone || "",
-    dnr: initialData?.dnr || false,
-    dnrNotes: initialData?.dnrNotes || "",
   });
 
   const update = (field: keyof ProfileData, value: unknown) =>
@@ -214,30 +210,6 @@ export default function ProfileForm({
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
           />
         </div>
-      </div>
-
-      <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="dnr"
-            checked={form.dnr}
-            onChange={(e) => update("dnr", e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300"
-          />
-          <label htmlFor="dnr" className="text-sm font-medium text-gray-700">
-            DNR / Advance Directive on File
-          </label>
-        </div>
-        {form.dnr && (
-          <textarea
-            value={form.dnrNotes}
-            onChange={(e) => update("dnrNotes", e.target.value)}
-            placeholder="Optional notes about advance directive..."
-            rows={2}
-            className="mt-3 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
-          />
-        )}
       </div>
 
       <button

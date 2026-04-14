@@ -1,7 +1,7 @@
-/** TTL duration: 18 months in milliseconds */
-const TTL_MS = 18 * 30 * 24 * 60 * 60 * 1000; // ~18 months
+/** TTL duration: 365 days in milliseconds */
+const TTL_MS = 365 * 24 * 60 * 60 * 1000;
 
-/** Get an ISO datetime string 18 months from now */
+/** Get an ISO datetime string 365 days from now */
 export function newTtlDeadline(): string {
   return new Date(Date.now() + TTL_MS).toISOString();
 }

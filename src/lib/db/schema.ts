@@ -20,8 +20,6 @@ export const accounts = sqliteTable("accounts", {
   physicianPhone: text("physician_phone"),
   emergencyContactRelation: text("emergency_contact_relation"),
   emergencyContactPhone: text("emergency_contact_phone"),
-  dnr: text("dnr"), // encrypted as string "true"/"false"
-  dnrNotes: text("dnr_notes"),
 
   // Metadata
   createdAt: text("created_at")

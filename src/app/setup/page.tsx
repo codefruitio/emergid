@@ -182,7 +182,7 @@ export default function SetupPage() {
               <h3 className="font-semibold text-gray-900">Important Reminders</h3>
               <ul className="text-sm text-gray-600 space-y-2">
                 <li>
-                  <strong>Log in at least once every 18 months</strong> to keep
+                  <strong>Log in at least once every 365 days</strong> to keep
                   your record active. We cannot warn you before deletion.
                 </li>
                 <li>
@@ -200,7 +200,7 @@ export default function SetupPage() {
               href="/admin"
               className="block text-center text-red-600 font-medium hover:text-red-700"
             >
-              Go to Admin Portal
+              Go to Account Portal
             </a>
           </div>
         )}

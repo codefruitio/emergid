@@ -7,8 +7,6 @@ export interface MedicalData {
   physicianPhone: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  dnr: boolean | null;
-  dnrNotes: string | null;
   lastUpdated: string;
 }
 
@@ -96,18 +94,6 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
             wearable — check the tag label for identification.
           </p>
         </div>
-
-        {/* DNR Alert */}
-        {data.dnr && (
-          <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-4 mb-4">
-            <div className="font-bold text-amber-800 text-lg">
-              DNR / Advance Directive on File
-            </div>
-            {data.dnrNotes && (
-              <p className="text-amber-700 mt-1">{data.dnrNotes}</p>
-            )}
-          </div>
-        )}
 
         {/* Allergies — highlighted if present */}
         {allergies.length > 0 && (
