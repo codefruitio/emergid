@@ -1,12 +1,12 @@
 services:
   emergid:
-    build: .
+    image: codefruitio/emergid:latest
     ports:
       - "9494:9494"
     environment:
       - DATABASE_PATH=/data/emergid.db
       - SESSION_SECRET=${SESSION_SECRET}
-      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:9494}
       - NODE_ENV=production
     volumes:
       - emergid-data:/data
