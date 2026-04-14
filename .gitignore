@@ -46,4 +46,4 @@ next-env.d.ts
 *.db-shm
 
 # claude
-.claude/launch.json
+.claude/

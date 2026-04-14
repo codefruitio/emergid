@@ -1,0 +1,16 @@
+services:
+  emergid:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_PATH=/data/emergid.db
+      - SESSION_SECRET=${SESSION_SECRET}
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      - NODE_ENV=production
+    volumes:
+      - emergid-data:/data
+    restart: unless-stopped
+
+volumes:
+  emergid-data:
