@@ -26,8 +26,6 @@ export async function GET(
       physicianPhone: accounts.physicianPhone,
       emergencyContactRelation: accounts.emergencyContactRelation,
       emergencyContactPhone: accounts.emergencyContactPhone,
-      dnr: accounts.dnr,
-      dnrNotes: accounts.dnrNotes,
       lastUpdated: accounts.lastUpdated,
       ttlDeadline: accounts.ttlDeadline,
     })
@@ -59,8 +57,6 @@ export async function GET(
       physicianPhone: account.physicianPhone,
       emergencyContactRelation: account.emergencyContactRelation,
       emergencyContactPhone: account.emergencyContactPhone,
-      dnr: account.dnr,
-      dnrNotes: account.dnrNotes,
     },
     dek
   );

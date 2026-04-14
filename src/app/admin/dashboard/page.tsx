@@ -14,8 +14,6 @@ interface ProfileResponse {
   physicianPhone: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  dnr: boolean | null;
-  dnrNotes: string | null;
   lastUpdated: string;
   ttlDeadline: string;
 }
@@ -35,7 +33,9 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [logs, setLogs] = useState<{ accessedAt: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"profile" | "log" | "token">("profile");
+  const [tab, setTab] = useState<"profile" | "log" | "token" | "danger">(
+    "profile"
+  );
   const [saved, setSaved] = useState(false);
   const [tokenUrl, setTokenUrl] = useState<string | null>(null);
   const [rerolling, setRerolling] = useState(false);
@@ -67,7 +67,6 @@ export default function DashboardPage() {
     if (res.ok) {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      // Refresh profile
       const updated = await fetch("/api/profile").then((r) => r.json());
       setProfile(updated);
     }
@@ -86,6 +85,20 @@ export default function DashboardPage() {
     const data = await res.json();
     setTokenUrl(data.tokenUrl);
     setRerolling(false);
+  };
+
+  const handleDestroy = async () => {
+    if (
+      !confirm(
+        "This will permanently delete your account and all medical data. Your NFC tag will stop working. This cannot be undone. Are you sure?"
+      )
+    )
+      return;
+
+    const res = await fetch("/api/account/destroy", { method: "POST" });
+    if (res.ok) {
+      router.push("/");
+    }
   };
 
   const copyUrl = async () => {
@@ -120,8 +133,6 @@ export default function DashboardPage() {
     physicianPhone: profile.physicianPhone || "",
     emergencyContactRelation: profile.emergencyContactRelation || "",
     emergencyContactPhone: profile.emergencyContactPhone || "",
-    dnr: profile.dnr || false,
-    dnrNotes: profile.dnrNotes || "",
   };
 
   return (
@@ -131,7 +142,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">emergID</h1>
-            <p className="text-sm text-gray-500">Admin Dashboard</p>
+            <p className="text-sm text-gray-500">Account Portal</p>
           </div>
           <div className="text-right text-sm">
             <div className="text-gray-500">Account expires in</div>
@@ -147,7 +158,7 @@ export default function DashboardPage() {
             <p className="text-amber-800 text-sm">
               Your record will be deleted in {daysUntilExpiry} days if you
               don&apos;t log in again. Logging in today has already reset your
-              18-month timer.
+              365-day timer.
             </p>
           </div>
         )}
@@ -166,7 +177,8 @@ export default function DashboardPage() {
             [
               ["profile", "Medical Profile"],
               ["log", "Access Log"],
-              ["token", "Token Management"],
+              ["token", "Token"],
+              ["danger", "Account"],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -246,6 +258,27 @@ export default function DashboardPage() {
                   </button>
                 </div>
               )}
+            </div>
+          )}
+
+          {tab === "danger" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  Destroy Account
+                </h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Permanently delete your account, all medical data, and
+                  invalidate your NFC tag URL. This action is immediate and
+                  cannot be undone.
+                </p>
+                <button
+                  onClick={handleDestroy}
+                  className="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700"
+                >
+                  Destroy Account
+                </button>
+              </div>
             </div>
           )}
         </div>

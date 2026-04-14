@@ -20,8 +20,6 @@ CREATE TABLE `accounts` (
 	`physician_phone` text,
 	`emergency_contact_relation` text,
 	`emergency_contact_phone` text,
-	`dnr` text,
-	`dnr_notes` text,
 	`created_at` text DEFAULT (datetime('now')) NOT NULL,
 	`last_updated` text DEFAULT (datetime('now')) NOT NULL,
 	`ttl_deadline` text NOT NULL

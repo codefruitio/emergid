@@ -84,7 +84,7 @@ export default function HomePage() {
               },
               {
                 title: "Auto-Deletion",
-                desc: "Records are automatically deleted after 18 months of inactivity. No orphaned data.",
+                desc: "Records are automatically deleted after 365 days of inactivity. No orphaned data.",
               },
             ].map((item) => (
               <div
