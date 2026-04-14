@@ -18,7 +18,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=9494
 
 # Copy standalone build and static assets
 COPY --from=base /app/.next/standalone ./
@@ -32,6 +32,6 @@ COPY --from=base /app/node_modules/bindings ./node_modules/bindings
 COPY --from=base /app/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
 COPY --from=base /app/node_modules/prebuild-install ./node_modules/prebuild-install
 
-EXPOSE 3000
+EXPOSE 9494
 
 CMD ["sh", "-c", "node src/lib/db/migrate.mjs && node server.js"]

@@ -2,7 +2,7 @@ services:
   emergid:
     build: .
     ports:
-      - "3000:3000"
+      - "9494:9494"
     environment:
       - DATABASE_PATH=/data/emergid.db
       - SESSION_SECRET=${SESSION_SECRET}
