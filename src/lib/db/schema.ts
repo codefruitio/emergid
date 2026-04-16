@@ -36,6 +36,7 @@ export const accessLog = sqliteTable("access_log", {
   accountId: integer("account_id")
     .notNull()
     .references(() => accounts.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull().default("tag_accessed"),
   accessedAt: text("accessed_at")
     .notNull()
     .default(sql`(datetime('now'))`),

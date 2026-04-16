@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { accounts, accessLog } from "@/lib/db/schema";
 import { generateToken, hash, encryptDEK } from "@/lib/crypto";
 import { getSession, getSessionDEK } from "@/lib/session";
 import { eq } from "drizzle-orm";
@@ -32,6 +32,10 @@ export async function POST() {
   db.update(accounts)
     .set({ tokenHash, encryptedDekToken })
     .where(eq(accounts.id, session.accountId))
+    .run();
+
+  db.insert(accessLog)
+    .values({ accountId: session.accountId, eventType: "token_rerolled" })
     .run();
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";

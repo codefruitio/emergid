@@ -1,0 +1,1 @@
+ALTER TABLE `access_log` ADD `event_type` text DEFAULT 'tag_accessed' NOT NULL;

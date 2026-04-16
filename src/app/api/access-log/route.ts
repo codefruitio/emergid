@@ -11,7 +11,7 @@ export async function GET() {
   }
 
   const logs = db
-    .select({ accessedAt: accessLog.accessedAt })
+    .select({ accessedAt: accessLog.accessedAt, eventType: accessLog.eventType })
     .from(accessLog)
     .where(eq(accessLog.accountId, session.accountId))
     .orderBy(desc(accessLog.accessedAt))
