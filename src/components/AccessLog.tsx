@@ -2,7 +2,13 @@
 
 interface AccessLogEntry {
   accessedAt: string;
+  eventType: string;
 }
+
+const eventLabels: Record<string, string> = {
+  tag_accessed: "Tag accessed",
+  token_rerolled: "Token rerolled",
+};
 
 export default function AccessLog({ entries }: { entries: AccessLogEntry[] }) {
   if (entries.length === 0) {
@@ -20,7 +26,9 @@ export default function AccessLog({ entries }: { entries: AccessLogEntry[] }) {
           key={i}
           className="flex items-center justify-between bg-gray-50 rounded-md px-4 py-2"
         >
-          <span className="text-sm text-gray-600">Tag accessed</span>
+          <span className={`text-sm ${entry.eventType === "token_rerolled" ? "text-amber-600 font-medium" : "text-gray-600"}`}>
+            {eventLabels[entry.eventType] || entry.eventType}
+          </span>
           <span className="text-sm text-gray-900 font-medium">
             {new Date(entry.accessedAt).toLocaleString("en-US", {
               year: "numeric",

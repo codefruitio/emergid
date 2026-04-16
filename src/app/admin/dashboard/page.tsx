@@ -31,7 +31,7 @@ function parseJsonArray(value: string | null): string[] {
 export default function DashboardPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
-  const [logs, setLogs] = useState<{ accessedAt: string }[]>([]);
+  const [logs, setLogs] = useState<{ accessedAt: string; eventType: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"profile" | "log" | "token" | "danger">(
     "profile"
