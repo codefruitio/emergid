@@ -57,7 +57,15 @@ export async function sendPushNotification(
     return { success: false, staleToken: false };
   }
 
-  const jwt = generateJWT();
+  console.log("[apns] Sending push to token:", deviceToken.slice(0, 8) + "...");
+
+  let jwt: string;
+  try {
+    jwt = generateJWT();
+  } catch (err) {
+    console.error("[apns] JWT generation failed:", err);
+    return { success: false, staleToken: false };
+  }
   const body = JSON.stringify({
     aps: {
       alert: {
@@ -92,8 +100,8 @@ export async function sendPushNotification(
       statusCode = headers[":status"] as number;
     });
 
-    // consume the response body
-    req.on("data", () => {});
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk: Buffer) => chunks.push(chunk));
 
     req.on("end", () => {
       client.close();
@@ -101,9 +109,9 @@ export async function sendPushNotification(
         console.log("[apns] Push delivered successfully.");
         resolve({ success: true });
       } else {
-        console.warn(`[apns] Push failed — HTTP ${statusCode}.`);
-        // 410 = Unregistered (device uninstalled app), 400 = BadDeviceToken
-        resolve({ success: false, staleToken: statusCode === 410 || statusCode === 400 });
+        const body = Buffer.concat(chunks).toString();
+        console.warn(`[apns] Push failed — HTTP ${statusCode}: ${body}`);
+        resolve({ success: false, staleToken: statusCode === 410 });
       }
     });
 
