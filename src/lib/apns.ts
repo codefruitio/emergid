@@ -71,8 +71,8 @@ export async function sendPushNotification(
   const body = JSON.stringify({
     aps: {
       alert: {
-        title: "Tag Accessed",
-        body: "Your emergID profile has been viewed. Consider rerolling your token to prevent continued access.",
+        title: "emergID Accessed",
+        body: "Consider rerolling your token to prevent continued access.",
       },
       sound: "default",
       "interruption-level": "time-sensitive",
