@@ -72,7 +72,7 @@ export async function sendPushNotification(
     aps: {
       alert: {
         title: "Tag Accessed",
-        body: "Your emergID tag was accessed",
+        body: "Your emergID profile has been viewed. Consider rerolling your token to prevent continued access.",
       },
       sound: "default",
       "interruption-level": "time-sensitive",
