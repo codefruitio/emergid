@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "sqlite",
   dbCredentials: {
-    url: "./emergid.db",
+    url: process.env.DATABASE_PATH || "./emergid.db",
   },
 });

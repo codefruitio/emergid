@@ -13,3 +13,9 @@ sqlite.pragma("foreign_keys = ON");
 export const db = drizzle(sqlite, { schema });
 
 migrate(db, { migrationsFolder: path.join(process.cwd(), "drizzle") });
+
+// Safety net: apply any columns that may have been skipped due to stale migration tracking
+const accountColumns = sqlite.pragma("table_info(accounts)") as Array<{ name: string }>;
+if (!accountColumns.some((c) => c.name === "apns_token")) {
+  sqlite.exec("ALTER TABLE accounts ADD COLUMN apns_token TEXT");
+}
