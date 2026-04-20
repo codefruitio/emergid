@@ -21,6 +21,9 @@ export const accounts = sqliteTable("accounts", {
   emergencyContactRelation: text("emergency_contact_relation"),
   emergencyContactPhone: text("emergency_contact_phone"),
 
+  // Push notifications
+  apnsToken: text("apns_token"),
+
   // Metadata
   createdAt: text("created_at")
     .notNull()
