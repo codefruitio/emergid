@@ -7,10 +7,12 @@ const APNS_BUNDLE_ID = process.env.APNS_BUNDLE_ID ?? "";
 // Store the .p8 key content as an env var with literal \n for newlines
 const APNS_PRIVATE_KEY = (process.env.APNS_PRIVATE_KEY ?? "").replace(/\\n/g, "\n");
 
+// Set APNS_SANDBOX=true on Railway when testing with a dev/Xcode build.
+// Switch to false (or remove the var) once distributing via App Store/TestFlight.
 const APNS_HOST =
-  process.env.NODE_ENV === "production"
-    ? "api.push.apple.com"
-    : "api.sandbox.push.apple.com";
+  process.env.APNS_SANDBOX === "true"
+    ? "api.sandbox.push.apple.com"
+    : "api.push.apple.com";
 
 let cachedJWT: { token: string; issuedAt: number } | null = null;
 const JWT_REFRESH_INTERVAL = 45 * 60; // refresh every 45 min (tokens valid for 60)
