@@ -75,6 +75,7 @@ export async function sendPushNotification(
         body: "Your emergID tag was accessed",
       },
       sound: "default",
+      "interruption-level": "time-sensitive",
     },
     accessedAt,
   });
