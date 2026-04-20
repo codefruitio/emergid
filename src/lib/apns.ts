@@ -48,6 +48,12 @@ export async function sendPushNotification(
   accessedAt: string
 ): Promise<APNsResult> {
   if (!APNS_KEY_ID || !APNS_TEAM_ID || !APNS_PRIVATE_KEY || !APNS_BUNDLE_ID) {
+    console.warn("[apns] Missing env vars — skipping push.", {
+      hasKeyId: !!APNS_KEY_ID,
+      hasTeamId: !!APNS_TEAM_ID,
+      hasPrivateKey: !!APNS_PRIVATE_KEY,
+      hasBundleId: !!APNS_BUNDLE_ID,
+    });
     return { success: false, staleToken: false };
   }
 
@@ -92,14 +98,17 @@ export async function sendPushNotification(
     req.on("end", () => {
       client.close();
       if (statusCode === 200) {
+        console.log("[apns] Push delivered successfully.");
         resolve({ success: true });
       } else {
+        console.warn(`[apns] Push failed — HTTP ${statusCode}.`);
         // 410 = Unregistered (device uninstalled app), 400 = BadDeviceToken
         resolve({ success: false, staleToken: statusCode === 410 || statusCode === 400 });
       }
     });
 
-    req.on("error", () => {
+    req.on("error", (err) => {
+      console.error("[apns] Request error:", err.message);
       client.close();
       resolve({ success: false, staleToken: false });
     });
