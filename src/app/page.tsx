@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -24,6 +25,23 @@ export default function HomePage() {
             >
               Access Your Account
             </Link>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <a
+              href="https://testflight.apple.com/join/djYRbzYH"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition hover:opacity-80"
+              aria-label="Download the emergID iOS app on the App Store"
+            >
+              <Image
+                src="/app-store-badge.svg"
+                alt="Download on the App Store"
+                width={160}
+                height={53}
+                priority
+              />
+            </a>
           </div>
         </div>
       </div>
