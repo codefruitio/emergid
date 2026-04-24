@@ -1,10 +1,10 @@
 import MedicalCard, { MedicalData } from "@/components/MedicalCard";
 import { db } from "@/lib/db";
-import { accounts, accessLog } from "@/lib/db/schema";
+import { accounts } from "@/lib/db/schema";
 import { hash, decryptDEK } from "@/lib/crypto";
 import { decryptProfile } from "@/lib/medical-crypto";
 import { isExpired } from "@/lib/ttl";
-import { sendPushNotification } from "@/lib/apns";
+import { recordTagAccess } from "@/lib/access";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
@@ -49,21 +49,7 @@ export default async function EmergencyCardPage({
     notFound();
   }
 
-  // Log access
-  db.insert(accessLog).values({ accountId: account.id }).run();
-
-  // Fire push notification (fire-and-forget; stale tokens are cleared async)
-  if (account.apnsToken) {
-    const apnsToken = account.apnsToken;
-    const accountId = account.id;
-    sendPushNotification(apnsToken, new Date().toISOString())
-      .then((result) => {
-        if (!result.success && result.staleToken) {
-          db.update(accounts).set({ apnsToken: null }).where(eq(accounts.id, accountId)).run();
-        }
-      })
-      .catch(() => {});
-  }
+  recordTagAccess(account.id, account.apnsToken);
 
   // Decrypt DEK using token, then decrypt medical data
   const dek = decryptDEK(account.encryptedDekToken, token, account.keySalt);

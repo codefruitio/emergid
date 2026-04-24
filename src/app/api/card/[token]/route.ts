@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { accounts, accessLog } from "@/lib/db/schema";
+import { accounts } from "@/lib/db/schema";
 import { hash, decryptDEK } from "@/lib/crypto";
 import { decryptProfile } from "@/lib/medical-crypto";
 import { isExpired } from "@/lib/ttl";
-import { sendPushNotification } from "@/lib/apns";
-import { and, eq, isNull, or, sql } from "drizzle-orm";
-
-const NOTIFICATION_COOLDOWN = "-60 minutes";
+import { recordTagAccess } from "@/lib/access";
+import { eq } from "drizzle-orm";
 
 export async function GET(
   _request: NextRequest,
@@ -46,44 +44,7 @@ export async function GET(
     return NextResponse.json({ error: "Record not found" }, { status: 404 });
   }
 
-  // Decide notification outcome, then log access with that status.
-  // Atomically claim the cooldown slot so refreshes within the window don't re-notify.
-  let notificationStatus: "sent" | "cooldown" | "no_token";
-
-  if (!account.apnsToken) {
-    notificationStatus = "no_token";
-  } else {
-    const apnsToken = account.apnsToken;
-    const accountId = account.id;
-    const claimed = db
-      .update(accounts)
-      .set({ lastNotificationSentAt: sql`(datetime('now'))` })
-      .where(
-        and(
-          eq(accounts.id, accountId),
-          or(
-            isNull(accounts.lastNotificationSentAt),
-            sql`${accounts.lastNotificationSentAt} < datetime('now', ${NOTIFICATION_COOLDOWN})`
-          )
-        )
-      )
-      .run();
-
-    if (claimed.changes > 0) {
-      notificationStatus = "sent";
-      sendPushNotification(apnsToken, new Date().toISOString())
-        .then((result) => {
-          if (!result.success && result.staleToken) {
-            db.update(accounts).set({ apnsToken: null }).where(eq(accounts.id, accountId)).run();
-          }
-        })
-        .catch(() => {});
-    } else {
-      notificationStatus = "cooldown";
-    }
-  }
-
-  db.insert(accessLog).values({ accountId: account.id, notificationStatus }).run();
+  recordTagAccess(account.id, account.apnsToken);
 
   // Decrypt DEK using the token from the URL, then decrypt medical data
   const dek = decryptDEK(account.encryptedDekToken, token, account.keySalt);
