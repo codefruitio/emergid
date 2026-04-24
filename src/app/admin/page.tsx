@@ -8,6 +8,7 @@ export default function AdminLoginPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,15 +48,59 @@ export default function AdminLoginPage() {
             >
               Account Number
             </label>
-            <input
-              id="accountNumber"
-              type="text"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="0000000000000000"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-center font-mono text-lg text-gray-900"
-              autoFocus
-            />
+            <div className="relative">
+              <input
+                id="accountNumber"
+                name="account-number"
+                type={revealed ? "text" : "password"}
+                autoComplete="current-password"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                placeholder="0000000000000000"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-center font-mono text-lg text-gray-900"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setRevealed((v) => !v)}
+                aria-label={revealed ? "Hide account number" : "Show account number"}
+                aria-pressed={revealed}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+              >
+                {revealed ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.75}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.584 10.587a2 2 0 002.828 2.83" />
+                    <path d="M9.363 5.365A9.466 9.466 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.043 5.19M6.61 6.611C4.662 7.967 3.18 9.93 2.458 12c1.274 4.057 5.064 7 9.542 7 1.77 0 3.447-.46 4.89-1.272" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.75}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                  >
+                    <path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           {error && (
