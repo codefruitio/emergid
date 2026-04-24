@@ -21,4 +21,12 @@ if (process.env.NEXT_PHASE !== "phase-production-build") {
   if (!accountColumns.some((c) => c.name === "apns_token")) {
     sqlite.exec("ALTER TABLE accounts ADD COLUMN apns_token TEXT");
   }
+  if (!accountColumns.some((c) => c.name === "last_notification_sent_at")) {
+    sqlite.exec("ALTER TABLE accounts ADD COLUMN last_notification_sent_at TEXT");
+  }
+
+  const accessLogColumns = sqlite.pragma("table_info(access_log)") as Array<{ name: string }>;
+  if (!accessLogColumns.some((c) => c.name === "notification_status")) {
+    sqlite.exec("ALTER TABLE access_log ADD COLUMN notification_status TEXT");
+  }
 }

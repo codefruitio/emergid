@@ -23,6 +23,7 @@ export const accounts = sqliteTable("accounts", {
 
   // Push notifications
   apnsToken: text("apns_token"),
+  lastNotificationSentAt: text("last_notification_sent_at"),
 
   // Metadata
   createdAt: text("created_at")
@@ -40,6 +41,7 @@ export const accessLog = sqliteTable("access_log", {
     .notNull()
     .references(() => accounts.id, { onDelete: "cascade" }),
   eventType: text("event_type").notNull().default("tag_accessed"),
+  notificationStatus: text("notification_status"),
   accessedAt: text("accessed_at")
     .notNull()
     .default(sql`(datetime('now'))`),
