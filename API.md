@@ -6,13 +6,15 @@ All endpoints are relative to the base URL (e.g. `https://emergid.example.com`).
 
 ## Authentication
 
-Admin endpoints require a session cookie set by `POST /api/auth`. The session is a signed, HTTP-only cookie that expires after 24 hours.
+Admin endpoints require a session cookie set by `POST /api/auth`. The session is split across two HTTP-only cookies — `emergid_session` (signed account id) and `emergid_dek` (encrypted DEK) — both with a 24-hour max age.
 
 | Header | Value |
 |--------|-------|
-| `Cookie` | Set automatically by the browser after login |
+| `Cookie` | Set automatically by the browser/client after login |
 
 Endpoints marked **Session** will return `401 Unauthorized` if the session cookie is missing or invalid.
+
+Endpoints marked **Session + DEK** additionally require `emergid_dek` to be present (any endpoint that reads or writes encrypted medical data).
 
 ---
 
@@ -71,16 +73,12 @@ Authenticate with an account number. Sets a session cookie and resets the accoun
 }
 ```
 
-**Response (401):**
+**Response (400):** `{ "error": "Account number required" }` if `accountNumber` is missing.
 
-```json
-{
-  "error": "Invalid account number"
-}
-```
+**Response (401):** `{ "error": "Invalid account number" }` if no account matches the supplied number.
 
 **Side effects:**
-- Sets `emergid_session` and `emergid_dek` HTTP-only cookies.
+- Sets `emergid_session` and `emergid_dek` HTTP-only cookies (24-hour max age).
 - Resets the account's TTL deadline to 365 days from now.
 
 ---
@@ -89,7 +87,7 @@ Authenticate with an account number. Sets a session cookie and resets the accoun
 
 Fetch the authenticated user's medical profile (decrypted).
 
-**Auth:** Session
+**Auth:** Session + DEK
 
 **Response (200):**
 
@@ -131,7 +129,7 @@ Fetch the authenticated user's medical profile (decrypted).
 
 Update the authenticated user's medical profile.
 
-**Auth:** Session
+**Auth:** Session + DEK
 
 **Request body:**
 
@@ -210,7 +208,8 @@ Fetch the medical card data for a given token. This is the public endpoint acces
 ```
 
 **Side effects:**
-- Inserts a timestamp into the access log.
+- Inserts a `tag_accessed` row into the access log, stamped with the notification outcome (`sent`, `cooldown`, or `no_token`).
+- If the account has an APNs token registered and is outside the 60-minute notification cooldown, an APNs alert is dispatched to the owner. Stale APNs tokens (HTTP 410) are cleared automatically.
 - If the account's TTL has expired, the account is deleted and 404 is returned.
 
 **Notes:**
@@ -230,18 +229,50 @@ Fetch the access log for the authenticated user's account.
 
 ```json
 [
-  { "accessedAt": "2026-04-13 20:15:32" },
-  { "accessedAt": "2026-04-13 19:45:10" }
+  {
+    "accessedAt": "2026-04-13 20:15:32",
+    "eventType": "tag_accessed",
+    "notificationStatus": "sent"
+  },
+  {
+    "accessedAt": "2026-04-13 19:45:10",
+    "eventType": "token_rerolled",
+    "notificationStatus": null
+  }
 ]
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `accessedAt` | string | Timestamp of when the NFC tag was tapped |
+| `accessedAt` | string | Timestamp of the event (`YYYY-MM-DD HH:MM:SS` UTC) |
+| `eventType` | string | One of `tag_accessed` (NFC tap or `/e/:token` view) or `token_rerolled` |
+| `notificationStatus` | string or null | For `tag_accessed`: one of `sent`, `cooldown`, `no_token`. `null` for non-tag events. |
 
 **Notes:**
 - Returns up to 100 most recent entries, ordered newest first.
-- Only timestamps are stored. No IP address, user agent, or device information is recorded.
+- Only timestamps and event metadata are stored. No IP address, user agent, or device information is recorded.
+
+---
+
+### DELETE /api/access-log
+
+Permanently delete every access-log entry belonging to the authenticated account.
+
+**Auth:** Session
+
+**Request body:** None
+
+**Response (200):**
+
+```json
+{
+  "success": true
+}
+```
+
+**Notes:**
+- Idempotent — calling it on an already-empty log still returns `{ "success": true }`.
+- Does not affect the account, profile, token, or APNs registration.
 
 ---
 
@@ -249,7 +280,7 @@ Fetch the access log for the authenticated user's account.
 
 Generate a new token and invalidate the old one. Requires reprogramming the NFC tag.
 
-**Auth:** Session
+**Auth:** Session + DEK
 
 **Response (200):**
 
@@ -269,6 +300,7 @@ Generate a new token and invalidate the old one. Requires reprogramming the NFC 
 - The old token hash is replaced with the new one. The old URL immediately returns 404.
 - The DEK is re-encrypted under the new token.
 - The DEK encrypted under the account number is unchanged.
+- A `token_rerolled` row is appended to the access log.
 
 ---
 
@@ -291,6 +323,104 @@ Permanently delete the authenticated user's account and all associated data.
 - Destroys the session cookies.
 - The token URL immediately returns 404.
 - This action is irreversible.
+
+---
+
+### GET /api/capabilities
+
+Report which optional server features are configured. Unauthenticated — clients (e.g. the iOS app) probe this before login to decide which UI affordances to show.
+
+**Auth:** None
+
+**Response (200):**
+
+```json
+{
+  "pushNotifications": true
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pushNotifications` | boolean | `true` when all four APNs env vars (`APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_PRIVATE_KEY`, `APNS_BUNDLE_ID`) are present. The server cannot send push notifications when this is `false`. |
+
+---
+
+### POST /api/notifications/register
+
+Register an APNs device token for the authenticated account so the owner is notified when their NFC tag is tapped.
+
+**Auth:** Session
+
+**Request body:**
+
+```json
+{
+  "apnsToken": "a1b2c3d4...64hex"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `apnsToken` | string | Yes | 64-character hex APNs device token (32 raw bytes). |
+
+**Response (200):** `{ "success": true }`
+
+**Response (400):** `{ "error": "Invalid token" }` if `apnsToken` is not a 64-char hex string.
+
+**Notes:**
+- One device token per account. Calling again replaces the previous registration.
+- Stale tokens (APNs HTTP 410) are cleared automatically on the next tag access.
+
+---
+
+### DELETE /api/notifications/unregister
+
+Clear the APNs device token from the authenticated account.
+
+**Auth:** Session
+
+**Request body:** None
+
+**Response (200):** `{ "success": true }`
+
+---
+
+### GET /api/notifications/status
+
+Report whether the authenticated account currently has an APNs device token registered.
+
+**Auth:** Session
+
+**Response (200):**
+
+```json
+{
+  "registered": true
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `registered` | boolean | `true` if an APNs token is on file for this account. |
+
+---
+
+### GET /.well-known/apple-app-site-association
+
+Apple App Site Association file used for Universal Links and shared web credentials with the iOS app. Served as JSON with `Cache-Control: public, max-age=3600`. Also exposed at `/apple-app-site-association` and the underlying handler `/api/aasa`.
+
+**Auth:** None
+
+**Response (200):**
+
+```json
+{
+  "webcredentials": {
+    "apps": ["5978XLQ85J.codefruit.emergID"]
+  }
+}
+```
 
 ---
 
@@ -331,7 +461,7 @@ The public medical card page. This is the URL written to NFC tags and what first
 - Displays all decrypted medical fields in a mobile-optimized layout.
 - Includes a notice that the patient's name is on the physical NFC tag.
 - Returns a styled 404 page if the token is invalid or the account has expired.
-- Logs each access to the access log.
+- Logs each access to the access log and triggers an APNs notification to the owner (subject to the 60-minute cooldown).
 
 ---
 
@@ -347,7 +477,9 @@ GET /e/:token
     +--> Look up account by token_hash
     +--> Decrypt DEK using token + salt (PBKDF2 -> AES-256-GCM)
     +--> Decrypt medical fields using DEK (AES-256-GCM)
-    +--> Log access timestamp
+    +--> Atomically claim notification cooldown slot
+    +--> Fire APNs alert if claimed (and apns_token is set)
+    +--> Insert access_log row (event_type='tag_accessed', notification_status=sent|cooldown|no_token)
     +--> Render HTML medical card (SSR)
 
 Account Portal Login
