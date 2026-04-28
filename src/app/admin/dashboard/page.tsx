@@ -46,6 +46,10 @@ export default function DashboardPage() {
   const [notificationResult, setNotificationResult] = useState<
     { kind: "ok" | "err"; message: string } | null
   >(null);
+  const [capabilities, setCapabilities] = useState<{
+    pushNotifications: boolean;
+    cronAuthorized: boolean;
+  }>({ pushNotifications: false, cronAuthorized: false });
 
   useEffect(() => {
     const stored = localStorage.getItem("emergid:dashboardTab");
@@ -73,9 +77,15 @@ export default function DashboardPage() {
         return r.json();
       }),
       fetch("/api/access-log").then((r) => (r.ok ? r.json() : [])),
-    ]).then(([profileData, logData]) => {
+      fetch("/api/capabilities").then((r) =>
+        r.ok
+          ? r.json()
+          : { pushNotifications: false, cronAuthorized: false }
+      ),
+    ]).then(([profileData, logData, caps]) => {
       if (profileData) setProfile(profileData);
       setLogs(logData);
+      setCapabilities(caps);
       setLoading(false);
     });
   }, [router]);
@@ -188,6 +198,13 @@ export default function DashboardPage() {
     (ttlDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
 
+  // The expiry-warning UX depends on both push (to deliver the warning) and
+  // a CRON_SECRET (so the GitHub Actions cron is authorized to fire it).
+  // In self-hosted deploys without one or both, hide the expiry surfaces and
+  // the test-notification button — the TTL still ticks server-side.
+  const expiryWarningsEnabled =
+    capabilities.pushNotifications && capabilities.cronAuthorized;
+
   const initialData: Partial<ProfileData> = {
     bloodType: profile.bloodType || "",
     allergies: parseJsonArray(profile.allergies),
@@ -208,16 +225,18 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold text-gray-900">emergID</h1>
             <p className="text-sm text-gray-500">Account Portal</p>
           </div>
-          <div className="text-right text-sm">
-            <div className="text-gray-500">Account expires in</div>
-            <div className="font-semibold text-gray-900">
-              {daysUntilExpiry} days
+          {expiryWarningsEnabled && (
+            <div className="text-right text-sm">
+              <div className="text-gray-500">Account expires in</div>
+              <div className="font-semibold text-gray-900">
+                {daysUntilExpiry} days
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* TTL Notice */}
-        {daysUntilExpiry < 90 && (
+        {expiryWarningsEnabled && daysUntilExpiry < 90 && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
             <p className="text-amber-800 text-sm">
               Your record will be deleted in {daysUntilExpiry} days if you
@@ -338,38 +357,46 @@ export default function DashboardPage() {
 
           {tab === "danger" && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Test Push Notification
-                </h2>
-                <p className="text-sm text-gray-600 mb-4">
-                  Send a test push to your registered device. The message
-                  matches what you&apos;ll receive when your account is within
-                  31 days of expiry — using your current days remaining.
-                </p>
-                <button
-                  onClick={handleTestNotification}
-                  disabled={testingNotification}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {testingNotification
-                    ? "Sending..."
-                    : "Send Test Notification"}
-                </button>
-                {notificationResult && (
-                  <p
-                    className={`text-sm mt-3 ${
-                      notificationResult.kind === "ok"
-                        ? "text-green-700"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {notificationResult.message}
+              {capabilities.pushNotifications && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                    Test Push Notification
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Send a test push to your registered device. The message
+                    matches what you&apos;ll receive when your account is within
+                    31 days of expiry — using your current days remaining.
                   </p>
-                )}
-              </div>
+                  <button
+                    onClick={handleTestNotification}
+                    disabled={testingNotification}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {testingNotification
+                      ? "Sending..."
+                      : "Send Test Notification"}
+                  </button>
+                  {notificationResult && (
+                    <p
+                      className={`text-sm mt-3 ${
+                        notificationResult.kind === "ok"
+                          ? "text-green-700"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {notificationResult.message}
+                    </p>
+                  )}
+                </div>
+              )}
 
-              <div className="border-t border-gray-200 pt-6">
+              <div
+                className={
+                  capabilities.pushNotifications
+                    ? "border-t border-gray-200 pt-6"
+                    : ""
+                }
+              >
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">
                   Destroy Account
                 </h2>
