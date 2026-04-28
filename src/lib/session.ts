@@ -4,7 +4,7 @@ import { sign, verify, encrypt, decrypt } from "./crypto";
 const COOKIE_NAME = "emergid_session";
 const DEK_COOKIE_NAME = "emergid_dek";
 const SECRET = process.env.SESSION_SECRET || "dev-secret-change-in-production";
-const MAX_AGE = 60 * 60 * 24; // 24 hours
+const MAX_AGE = 60 * 60 * 24 * 90; // 90 days
 
 interface Session {
   accountId: number;

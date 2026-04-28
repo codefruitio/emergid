@@ -35,13 +35,29 @@ export default function DashboardPage() {
     { accessedAt: string; eventType: string; notificationStatus?: string | null }[]
   >([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"profile" | "log" | "token" | "danger">(
-    "profile"
-  );
+  type Tab = "profile" | "log" | "token" | "danger";
+  const [tab, setTab] = useState<Tab>("profile");
+  const [clearingLogs, setClearingLogs] = useState(false);
   const [saved, setSaved] = useState(false);
   const [tokenUrl, setTokenUrl] = useState<string | null>(null);
   const [rerolling, setRerolling] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("emergid:dashboardTab");
+    if (
+      stored === "profile" ||
+      stored === "log" ||
+      stored === "token" ||
+      stored === "danger"
+    ) {
+      setTab(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("emergid:dashboardTab", tab);
+  }, [tab]);
 
   useEffect(() => {
     Promise.all([
@@ -87,6 +103,20 @@ export default function DashboardPage() {
     const data = await res.json();
     setTokenUrl(data.tokenUrl);
     setRerolling(false);
+  };
+
+  const handleClearLogs = async () => {
+    if (
+      !confirm(
+        "This will permanently delete all access log entries for your account. Continue?"
+      )
+    )
+      return;
+
+    setClearingLogs(true);
+    const res = await fetch("/api/access-log", { method: "DELETE" });
+    if (res.ok) setLogs([]);
+    setClearingLogs(false);
   };
 
   const handleDestroy = async () => {
@@ -217,6 +247,17 @@ export default function DashboardPage() {
                 recorded — no location or device information.
               </p>
               <AccessLog entries={logs} />
+              {logs.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleClearLogs}
+                    disabled={clearingLogs}
+                    className="text-sm text-red-600 font-medium hover:text-red-700 disabled:opacity-50"
+                  >
+                    {clearingLogs ? "Clearing..." : "Clear access log"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

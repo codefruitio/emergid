@@ -24,3 +24,14 @@ export async function GET() {
 
   return NextResponse.json(logs);
 }
+
+export async function DELETE() {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  db.delete(accessLog).where(eq(accessLog.accountId, session.accountId)).run();
+
+  return NextResponse.json({ success: true });
+}
