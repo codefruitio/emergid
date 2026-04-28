@@ -24,6 +24,7 @@ export const accounts = sqliteTable("accounts", {
   // Push notifications
   apnsToken: text("apns_token"),
   lastNotificationSentAt: text("last_notification_sent_at"),
+  expiryWarningSentAt: text("expiry_warning_sent_at"),
 
   // Metadata
   createdAt: text("created_at")

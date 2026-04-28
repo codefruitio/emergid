@@ -42,6 +42,10 @@ export default function DashboardPage() {
   const [tokenUrl, setTokenUrl] = useState<string | null>(null);
   const [rerolling, setRerolling] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [testingNotification, setTestingNotification] = useState(false);
+  const [notificationResult, setNotificationResult] = useState<
+    { kind: "ok" | "err"; message: string } | null
+  >(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("emergid:dashboardTab");
@@ -117,6 +121,34 @@ export default function DashboardPage() {
     const res = await fetch("/api/access-log", { method: "DELETE" });
     if (res.ok) setLogs([]);
     setClearingLogs(false);
+  };
+
+  const handleTestNotification = async () => {
+    setTestingNotification(true);
+    setNotificationResult(null);
+    try {
+      const res = await fetch("/api/account/test-notification", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNotificationResult({
+          kind: "ok",
+          message: `Test notification sent. Preview: "expires in ${data.daysUntilExpiry} day${data.daysUntilExpiry === 1 ? "" : "s"}".`,
+        });
+      } else {
+        setNotificationResult({
+          kind: "err",
+          message: data.error || "Failed to send notification.",
+        });
+      }
+    } catch {
+      setNotificationResult({
+        kind: "err",
+        message: "Network error. Try again.",
+      });
+    }
+    setTestingNotification(false);
   };
 
   const handleDestroy = async () => {
@@ -307,6 +339,37 @@ export default function DashboardPage() {
           {tab === "danger" && (
             <div className="space-y-6">
               <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  Test Push Notification
+                </h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Send a test push to your registered device. The message
+                  matches what you&apos;ll receive when your account is within
+                  31 days of expiry — using your current days remaining.
+                </p>
+                <button
+                  onClick={handleTestNotification}
+                  disabled={testingNotification}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {testingNotification
+                    ? "Sending..."
+                    : "Send Test Notification"}
+                </button>
+                {notificationResult && (
+                  <p
+                    className={`text-sm mt-3 ${
+                      notificationResult.kind === "ok"
+                        ? "text-green-700"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {notificationResult.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">
                   Destroy Account
                 </h2>

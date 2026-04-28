@@ -32,9 +32,10 @@ export async function POST(request: NextRequest) {
   // Decrypt DEK using account number
   const dek = decryptDEK(account.encryptedDekAccount, accountNumber, account.keySalt);
 
-  // Reset TTL on admin login
+  // Reset TTL on admin login. Also clear any prior expiry-warning marker so
+  // the next time the account approaches expiry, a fresh warning fires.
   db.update(accounts)
-    .set({ ttlDeadline: newTtlDeadline() })
+    .set({ ttlDeadline: newTtlDeadline(), expiryWarningSentAt: null })
     .where(eq(accounts.id, account.id))
     .run();
 
