@@ -1,0 +1,41 @@
+name: Daily Cron
+
+# Runs the cleanup + expiry-check cron endpoints once a day.
+#
+# Timezone note: GitHub Actions schedules run in UTC and have no DST awareness.
+# 13:00 UTC is chosen so the job fires at 7am Central during standard time
+# (Nov–Mar / CST) and at 8am Central during daylight saving time
+# (Mar–Nov / CDT). We err one hour later rather than earlier so notifications
+# never arrive before 7am local in either season.
+#
+# Reliability note: GitHub Actions scheduled workflows can be delayed by
+# several minutes during peak load — fine for a daily account-expiry job.
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch: {} # allows manual runs from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup expired accounts
+        env:
+          BASE_URL: ${{ secrets.PROD_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/cron/cleanup"
+          echo
+
+      - name: Send expiry warnings
+        env:
+          BASE_URL: ${{ secrets.PROD_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/cron/expiry-check"
+          echo

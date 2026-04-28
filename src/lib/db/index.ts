@@ -25,6 +25,9 @@ function openDb(): DB {
   if (!accountColumns.some((c) => c.name === "last_notification_sent_at")) {
     sqlite.exec("ALTER TABLE accounts ADD COLUMN last_notification_sent_at TEXT");
   }
+  if (!accountColumns.some((c) => c.name === "expiry_warning_sent_at")) {
+    sqlite.exec("ALTER TABLE accounts ADD COLUMN expiry_warning_sent_at TEXT");
+  }
 
   const accessLogColumns = sqlite.pragma("table_info(access_log)") as Array<{ name: string }>;
   if (!accessLogColumns.some((c) => c.name === "notification_status")) {

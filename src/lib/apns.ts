@@ -49,9 +49,17 @@ export type APNsResult =
   | { success: true }
   | { success: false; staleToken: boolean };
 
+export interface PushOptions {
+  title?: string;
+  body?: string;
+  /** Extra payload fields merged at the top level of the APNs JSON. */
+  extra?: Record<string, unknown>;
+}
+
 export async function sendPushNotification(
   deviceToken: string,
-  accessedAt: string
+  accessedAt: string,
+  options: PushOptions = {}
 ): Promise<APNsResult> {
   if (!APNS_KEY_ID || !APNS_TEAM_ID || !APNS_PRIVATE_KEY || !APNS_BUNDLE_ID) {
     console.warn("[apns] Missing env vars — skipping push.", {
@@ -72,16 +80,18 @@ export async function sendPushNotification(
     console.error("[apns] JWT generation failed:", err);
     return { success: false, staleToken: false };
   }
+  const title = options.title ?? "emergID Accessed";
+  const alertBody =
+    options.body ??
+    "Consider rerolling your token to prevent continued access.";
   const body = JSON.stringify({
     aps: {
-      alert: {
-        title: "emergID Accessed",
-        body: "Consider rerolling your token to prevent continued access.",
-      },
+      alert: { title, body: alertBody },
       sound: "default",
       "interruption-level": "time-sensitive",
     },
     accessedAt,
+    ...(options.extra ?? {}),
   });
 
   return new Promise((resolve) => {
