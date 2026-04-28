@@ -41,6 +41,10 @@ function generateJWT(): string {
   return token;
 }
 
+export function isApnsConfigured(): boolean {
+  return !!(APNS_KEY_ID && APNS_TEAM_ID && APNS_PRIVATE_KEY && APNS_BUNDLE_ID);
+}
+
 export type APNsResult =
   | { success: true }
   | { success: false; staleToken: boolean };
