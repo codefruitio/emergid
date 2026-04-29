@@ -71,7 +71,7 @@ export default function DashboardPage() {
     Promise.all([
       fetch("/api/profile").then((r) => {
         if (r.status === 401) {
-          router.push("/admin");
+          router.push("/account");
           return null;
         }
         return r.json();

@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { sign, verify, encrypt, decrypt } from "./crypto";
+import { getSessionSecret } from "./session-secret";
 
 const COOKIE_NAME = "emergid_session";
 const DEK_COOKIE_NAME = "emergid_dek";
-const SECRET = process.env.SESSION_SECRET || "dev-secret-change-in-production";
 const MAX_AGE = 60 * 60 * 24 * 90; // 90 days
 
 interface Session {
@@ -12,13 +12,14 @@ interface Session {
 
 /** Create a signed session cookie and store the encrypted DEK */
 export async function createSession(accountId: number, dek: Buffer): Promise<void> {
+  const secret = getSessionSecret();
   const timestamp = Date.now();
   const payload = `${accountId}:${timestamp}`;
-  const signature = sign(payload, SECRET);
+  const signature = sign(payload, secret);
   const value = `${payload}:${signature}`;
 
   // Encrypt the DEK with the session secret for cookie storage
-  const sessionKey = Buffer.from(SECRET.padEnd(32, "0").slice(0, 32));
+  const sessionKey = Buffer.from(secret.padEnd(32, "0").slice(0, 32));
   const encryptedDek = encrypt(dek.toString("hex"), sessionKey);
 
   const cookieStore = await cookies();
@@ -46,7 +47,7 @@ export async function getSession(): Promise<Session | null> {
   const [accountIdStr, timestampStr, signature] = parts;
   const payload = `${accountIdStr}:${timestampStr}`;
 
-  if (!verify(payload, signature, SECRET)) return null;
+  if (!verify(payload, signature, getSessionSecret())) return null;
 
   const timestamp = parseInt(timestampStr, 10);
   if (Date.now() - timestamp > MAX_AGE * 1000) return null;
@@ -64,7 +65,8 @@ export async function getSessionDEK(): Promise<Buffer | null> {
   if (!dekCookie) return null;
 
   try {
-    const sessionKey = Buffer.from(SECRET.padEnd(32, "0").slice(0, 32));
+    const secret = getSessionSecret();
+    const sessionKey = Buffer.from(secret.padEnd(32, "0").slice(0, 32));
     const dekHex = decrypt(dekCookie.value, sessionKey);
     return Buffer.from(dekHex, "hex");
   } catch {

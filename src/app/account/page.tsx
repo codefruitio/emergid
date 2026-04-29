@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AdminLoginPage() {
+export default function AccountLoginPage() {
   const router = useRouter();
   const [accountNumber, setAccountNumber] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
     });
 
     if (res.ok) {
-      router.push("/admin/dashboard");
+      router.push("/account/dashboard");
     } else {
       setError("Invalid account number. Please try again.");
     }

@@ -197,7 +197,7 @@ export default function SetupPage() {
             </div>
 
             <a
-              href="/admin"
+              href="/account"
               className="block text-center text-red-600 font-medium hover:text-red-700"
             >
               Go to Account Portal
