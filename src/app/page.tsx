@@ -133,7 +133,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <div className="text-center py-8 text-sm text-gray-400">
-        emergID — Emergency Medical Identification
+        emergID
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "emergID — Emergency Medical Identification",
+  title: "emergID",
   description:
     "Privacy-conscious emergency medical ID. NFC tap to view critical medical information.",
 };
