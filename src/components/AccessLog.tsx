@@ -20,7 +20,7 @@ const notificationLabels: Record<string, string> = {
 export default function AccessLog({ entries }: { entries: AccessLogEntry[] }) {
   if (entries.length === 0) {
     return (
-      <p className="text-gray-400 text-sm">
+      <p className="text-zinc-600 text-sm">
         No access log entries yet. Entries appear when someone taps your NFC tag.
       </p>
     );
@@ -37,25 +37,25 @@ export default function AccessLog({ entries }: { entries: AccessLogEntry[] }) {
         return (
           <div
             key={i}
-            className="flex items-center justify-between bg-gray-50 rounded-md px-4 py-2"
+            className="flex items-center justify-between bg-zinc-800 rounded-lg px-4 py-2.5 border border-zinc-700/50"
           >
             <div className="flex flex-col">
               <span
                 className={`text-sm ${
                   entry.eventType === "token_rerolled"
-                    ? "text-amber-600 font-medium"
-                    : "text-gray-600"
+                    ? "text-amber-400 font-medium"
+                    : "text-zinc-400"
                 }`}
               >
                 {eventLabels[entry.eventType] || entry.eventType}
               </span>
               {notificationLabel && (
-                <span className="text-xs text-gray-400 mt-0.5">
+                <span className="text-xs text-zinc-600 mt-0.5">
                   {notificationLabel}
                 </span>
               )}
             </div>
-            <span className="text-sm text-gray-900 font-medium">
+            <span className="text-sm text-zinc-300 font-medium tabular-nums">
               {new Date(entry.accessedAt).toLocaleString("en-US", {
                 year: "numeric",
                 month: "short",
