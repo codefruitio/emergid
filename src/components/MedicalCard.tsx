@@ -28,23 +28,24 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-gray-200 py-4 last:border-b-0">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-1">
+    <div className="border-b border-gray-100 py-4 last:border-b-0">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
         {title}
       </h2>
-      <div className="text-lg text-gray-900">{children}</div>
+      <div className="text-gray-900">{children}</div>
     </div>
   );
 }
 
 function PillList({ items }: { items: string[] }) {
-  if (items.length === 0) return <span className="text-gray-400">None listed</span>;
+  if (items.length === 0)
+    return <span className="text-gray-400 text-sm">None listed</span>;
   return (
     <div className="flex flex-wrap gap-2">
       {items.map((item, i) => (
         <span
           key={i}
-          className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-base"
+          className="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium"
         >
           {item}
         </span>
@@ -65,7 +66,7 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3">
             <svg
-              className="w-8 h-8 flex-shrink-0"
+              className="w-7 h-7 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -78,18 +79,22 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
               />
             </svg>
             <div>
-              <h1 className="text-xl font-bold">Emergency Medical Information</h1>
-              <p className="text-red-100 text-sm mt-0.5">emergID</p>
+              <h1 className="text-lg font-bold tracking-tight">
+                Emergency Medical Information
+              </h1>
+              <p className="text-red-200 text-xs mt-0.5 font-medium tracking-wider uppercase">
+                emergID
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-6 py-4">
+      <div className="max-w-lg mx-auto px-6 py-5">
         {/* Name notice */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-          <p className="text-blue-800 text-sm">
+        <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-5">
+          <p className="text-blue-700 text-sm">
             <strong>Patient name</strong> is printed on the physical NFC tag or
             wearable — check the tag label for identification.
           </p>
@@ -97,15 +102,15 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
 
         {/* Allergies — highlighted if present */}
         {allergies.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-red-600 mb-2">
-              Allergies
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-red-600 mb-2">
+              ⚠ Allergies
             </h2>
             <div className="flex flex-wrap gap-2">
               {allergies.map((a, i) => (
                 <span
                   key={i}
-                  className="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-base font-medium"
+                  className="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-lg text-sm font-semibold"
                 >
                   {a}
                 </span>
@@ -116,13 +121,15 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
 
         {allergies.length === 0 && (
           <Section title="Allergies">
-            <span className="text-gray-400">None listed</span>
+            <span className="text-gray-400 text-sm">None listed</span>
           </Section>
         )}
 
         {data.bloodType && (
           <Section title="Blood Type">
-            <span className="text-2xl font-bold">{data.bloodType}</span>
+            <span className="text-3xl font-bold tracking-tight">
+              {data.bloodType}
+            </span>
           </Section>
         )}
 
@@ -136,11 +143,13 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
 
         {(data.physicianName || data.physicianPhone) && (
           <Section title="Physician">
-            {data.physicianName && <div>{data.physicianName}</div>}
+            {data.physicianName && (
+              <div className="font-medium">{data.physicianName}</div>
+            )}
             {data.physicianPhone && (
               <a
                 href={`tel:${data.physicianPhone}`}
-                className="text-blue-600 underline"
+                className="text-blue-600 underline text-sm"
               >
                 {data.physicianPhone}
               </a>
@@ -151,12 +160,12 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
         {(data.emergencyContactRelation || data.emergencyContactPhone) && (
           <Section title="Emergency Contact">
             {data.emergencyContactRelation && (
-              <div>{data.emergencyContactRelation}</div>
+              <div className="font-medium">{data.emergencyContactRelation}</div>
             )}
             {data.emergencyContactPhone && (
               <a
                 href={`tel:${data.emergencyContactPhone}`}
-                className="text-blue-600 underline text-xl"
+                className="text-blue-600 underline font-semibold text-lg"
               >
                 {data.emergencyContactPhone}
               </a>
@@ -165,7 +174,7 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
         )}
 
         {/* Footer */}
-        <div className="mt-6 pt-4 border-t border-gray-100 text-sm text-gray-400">
+        <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-400">
           Last updated:{" "}
           {new Date(data.lastUpdated).toLocaleDateString("en-US", {
             year: "numeric",

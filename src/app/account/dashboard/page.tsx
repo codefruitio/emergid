@@ -185,8 +185,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <p className="text-zinc-600 text-sm">Loading…</p>
       </div>
     );
   }
@@ -198,10 +198,6 @@ export default function DashboardPage() {
     (ttlDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
 
-  // The expiry-warning UX depends on both push (to deliver the warning) and
-  // a CRON_SECRET (so the GitHub Actions cron is authorized to fire it).
-  // In self-hosted deploys without one or both, hide the expiry surfaces and
-  // the test-notification button — the TTL still ticks server-side.
   const expiryWarningsEnabled =
     capabilities.pushNotifications && capabilities.cronAuthorized;
 
@@ -216,20 +212,27 @@ export default function DashboardPage() {
     emergencyContactPhone: profile.emergencyContactPhone || "",
   };
 
+  const tabs = [
+    ["profile", "Medical Profile"],
+    ["log", "Access Log"],
+    ["token", "Token"],
+    ["danger", "Account"],
+  ] as const;
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-zinc-950">
       <div className="max-w-2xl mx-auto px-6 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">emergID</h1>
-            <p className="text-sm text-gray-500">Account Portal</p>
+            <h1 className="text-xl font-bold text-zinc-100">emergID</h1>
+            <p className="text-sm text-zinc-600 mt-0.5">Account Portal</p>
           </div>
           {expiryWarningsEnabled && (
             <div className="text-right text-sm">
-              <div className="text-gray-500">Account expires in</div>
-              <div className="font-semibold text-gray-900">
-                {daysUntilExpiry} days
+              <div className="text-zinc-600 text-xs">expires in</div>
+              <div className="font-semibold text-zinc-300 tabular-nums">
+                {daysUntilExpiry}d
               </div>
             </div>
           )}
@@ -237,8 +240,8 @@ export default function DashboardPage() {
 
         {/* TTL Notice */}
         {expiryWarningsEnabled && daysUntilExpiry < 90 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-            <p className="text-amber-800 text-sm">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6">
+            <p className="text-amber-400 text-sm">
               Your record will be deleted in {daysUntilExpiry} days if you
               don&apos;t log in again. Logging in today has already reset your
               365-day timer.
@@ -247,39 +250,35 @@ export default function DashboardPage() {
         )}
 
         {saved && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-            <p className="text-green-800 text-sm font-medium">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 mb-4">
+            <p className="text-emerald-400 text-sm font-medium">
               Medical profile updated successfully.
             </p>
           </div>
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6">
-          {(
-            [
-              ["profile", "Medical Profile"],
-              ["log", "Access Log"],
-              ["token", "Token"],
-              ["danger", "Account"],
-            ] as const
-          ).map(([key, label]) => (
+        <div className="flex border-b border-zinc-800 mb-6 -mx-1">
+          {tabs.map(([key, label]) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition ${
+              className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
                 tab === key
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-zinc-100"
+                  : "text-zinc-600 hover:text-zinc-400"
               }`}
             >
               {label}
+              {tab === key && (
+                <span className="absolute bottom-0 left-0 right-0 h-px bg-red-500" />
+              )}
             </button>
           ))}
         </div>
 
         {/* Tab content */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
           {tab === "profile" && (
             <ProfileForm
               initialData={initialData}
@@ -290,22 +289,22 @@ export default function DashboardPage() {
 
           {tab === "log" && (
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-base font-semibold text-zinc-100 mb-1">
                 Access Log
               </h2>
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-zinc-500 mb-5">
                 Each entry represents a tap on your NFC tag. Only timestamps are
                 recorded — no location or device information.
               </p>
               <AccessLog entries={logs} />
               {logs.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-zinc-800">
                   <button
                     onClick={handleClearLogs}
                     disabled={clearingLogs}
-                    className="text-sm text-red-600 font-medium hover:text-red-700 disabled:opacity-50"
+                    className="text-sm text-red-500 font-medium hover:text-red-400 transition-colors disabled:opacity-40"
                   >
-                    {clearingLogs ? "Clearing..." : "Clear access log"}
+                    {clearingLogs ? "Clearing…" : "Clear access log"}
                   </button>
                 </div>
               )}
@@ -315,10 +314,10 @@ export default function DashboardPage() {
           {tab === "token" && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                <h2 className="text-base font-semibold text-zinc-100 mb-1">
                   Reroll Token
                 </h2>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-zinc-500 mb-4">
                   Rerolling generates a new URL and immediately invalidates the
                   old one. You will need to reprogram your NFC tag with the new
                   URL. Recommended if you suspect your URL has been copied or
@@ -327,26 +326,28 @@ export default function DashboardPage() {
                 <button
                   onClick={handleReroll}
                   disabled={rerolling}
-                  className="bg-amber-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-amber-700 disabled:opacity-50"
+                  className="bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 px-5 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40"
                 >
-                  {rerolling ? "Generating..." : "Reroll Token"}
+                  {rerolling ? "Generating…" : "Reroll Token"}
                 </button>
               </div>
 
               {tokenUrl && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-5">
-                  <h3 className="font-semibold text-green-800 mb-2">
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5">
+                  <h3 className="font-semibold text-emerald-400 mb-1">
                     New Token URL Generated
                   </h3>
-                  <p className="text-sm text-green-700 mb-3">
+                  <p className="text-sm text-emerald-600 mb-3">
                     Write this URL to your NFC tag. The old URL no longer works.
                   </p>
-                  <div className="bg-white rounded-md border border-green-200 p-3 break-all">
-                    <code className="text-sm text-gray-900">{tokenUrl}</code>
+                  <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-3 break-all">
+                    <code className="text-sm text-zinc-300 font-mono">
+                      {tokenUrl}
+                    </code>
                   </div>
                   <button
                     onClick={copyUrl}
-                    className="mt-3 w-full bg-green-100 text-green-800 py-2 rounded-lg font-medium hover:bg-green-200"
+                    className="mt-3 w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
                     {copied ? "Copied!" : "Copy URL"}
                   </button>
@@ -359,10 +360,10 @@ export default function DashboardPage() {
             <div className="space-y-6">
               {capabilities.pushNotifications && (
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h2 className="text-base font-semibold text-zinc-100 mb-1">
                     Test Push Notification
                   </h2>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-zinc-500 mb-4">
                     Send a test push to your registered device. The message
                     matches what you&apos;ll receive when your account is within
                     31 days of expiry — using your current days remaining.
@@ -370,18 +371,18 @@ export default function DashboardPage() {
                   <button
                     onClick={handleTestNotification}
                     disabled={testingNotification}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                    className="bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 px-5 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40"
                   >
                     {testingNotification
-                      ? "Sending..."
+                      ? "Sending…"
                       : "Send Test Notification"}
                   </button>
                   {notificationResult && (
                     <p
                       className={`text-sm mt-3 ${
                         notificationResult.kind === "ok"
-                          ? "text-green-700"
-                          : "text-red-600"
+                          ? "text-emerald-400"
+                          : "text-red-400"
                       }`}
                     >
                       {notificationResult.message}
@@ -393,21 +394,21 @@ export default function DashboardPage() {
               <div
                 className={
                   capabilities.pushNotifications
-                    ? "border-t border-gray-200 pt-6"
+                    ? "border-t border-zinc-800 pt-6"
                     : ""
                 }
               >
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                <h2 className="text-base font-semibold text-zinc-100 mb-1">
                   Destroy Account
                 </h2>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-zinc-500 mb-4">
                   Permanently delete your account, all medical data, and
                   invalidate your NFC tag URL. This action is immediate and
                   cannot be undone.
                 </p>
                 <button
                   onClick={handleDestroy}
-                  className="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700"
+                  className="bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 px-5 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   Destroy Account
                 </button>
