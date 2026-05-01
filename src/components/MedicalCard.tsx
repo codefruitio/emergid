@@ -34,9 +34,8 @@ export default function MedicalCard({ data }: { data: MedicalData }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="relative bg-white border-b border-gray-100">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-red-600" />
-        <div className="max-w-lg mx-auto px-5 pt-5 pb-4 flex items-center gap-3">
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-lg mx-auto px-5 py-4 flex items-center gap-3">
           <div className="flex items-center gap-1.5 flex-1">
             <svg
               className="w-4 h-4 text-red-600 flex-shrink-0"
